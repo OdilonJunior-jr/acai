@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Açaí Space | Delivery</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#6B21A8',
+                        brandLight: '#A855F7',
+                        dark: '#1F2937',
+                        light: '#F3F4F6'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .modal-enter { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-purple-50 text-gray-800 pb-24">
+
+    <header class="bg-brand text-white relative shadow-lg overflow-hidden">
+        <div class="h-44 bg-cover bg-center absolute w-full opacity-30" style="background-image: url('https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80');"></div>
+        <div class="relative z-10 p-5 pt-8 flex items-center gap-4">
+            <div class="w-20 h-20 rounded-full border-4 border-purple-300 bg-white overflow-hidden shadow-md flex-shrink-0">
+                <img src="https://cdn-icons-png.flaticon.com/512/1688/1688988.png" alt="Logo" class="w-full h-full object-cover p-2">
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold leading-tight">Açaí Space</h1>
+                <div class="flex items-center gap-2 text-sm text-purple-200 mt-1">
+                    <span class="bg-green-400 w-2 h-2 rounded-full animate-pulse shadow-[0_0_10px_#4ade80]"></span>
+                    <span class="font-medium">Aberto Agora</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100 overflow-x-auto scrollbar-hide">
+        <div class="flex px-4 gap-6 min-w-max" id="category-nav"></div>
+    </nav>
+
+    <main id="menu-container" class="p-4 space-y-8"></main>
+
+    <div id="options-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity" onclick="closeOptionsModal()"></div>
+        <div class="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-2xl h-[85vh] flex flex-col modal-enter">
+            <div class="relative h-40">
+                <img id="modal-img" src="" class="w-full h-full object-cover rounded-t-3xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-5">
+                    <div><h2 id="modal-title" class="text-xl font-bold text-white leading-tight"></h2><p id="modal-desc" class="text-gray-300 text-xs mt-1 line-clamp-2"></p></div>
+                </div>
+                <button onclick="closeOptionsModal()" class="absolute top-4 right-4 bg-white/20 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-5">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-plus-circle text-brand mr-2"></i> Turbine sua garrafa:</h3>
+                <div id="toppings-list" class="space-y-3"></div>
+            </div>
+            <div class="p-5 border-t border-gray-100 bg-white">
+                <div class="flex justify-between items-center mb-3"><span class="text-sm text-gray-500">Total do item:</span><span id="modal-total-price" class="text-xl font-bold text-brand">R$ 0,00</span></div>
+                <button onclick="confirmAddWithToppings()" class="w-full bg-brand text-white font-bold py-3 rounded-xl hover:bg-purple-800 active:scale-95 transition-transform">Adicionar à Sacola</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-float-btn" onclick="toggleCart(true)" class="fixed bottom-6 left-4 right-4 bg-brand text-white p-4 rounded-xl shadow-2xl shadow-purple-900/40 flex justify-between items-center transform translate-y-32 transition-transform duration-300 z-40 cursor-pointer hover:bg-purple-800 border border-purple-400/30">
+        <div class="flex items-center gap-3"><div class="bg-white text-brand w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" id="cart-count">0</div><span class="font-medium text-sm">Ver sacola</span></div><div class="font-bold" id="cart-total-float">R$ 0,00</div>
+    </div>
+
+    <div id="cart-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-purple-900/60 backdrop-blur-sm transition-opacity" onclick="toggleCart(false)"></div>
+        <div class="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-2xl h-[90vh] flex flex-col modal-enter">
+            <div class="p-5 border-b flex justify-between items-center bg-purple-50 rounded-t-3xl"><h2 class="font-bold text-lg text-purple-900">Seu Pedido</h2><button onclick="toggleCart(false)" class="text-gray-400 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button></div>
+            <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                <div id="cart-items" class="space-y-4"></div>
+                <div id="empty-cart-msg" class="text-center py-10 hidden"><i class="fas fa-shopping-basket text-4xl text-gray-200 mb-3"></i><p class="text-gray-400">Sacola vazia.</p></div>
+                <hr class="border-gray-100">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-3 text-sm">Entrega</h3>
+                    <div class="flex gap-3 mb-3">
+                        <label class="flex-1 border rounded-lg p-3 cursor-pointer has-[:checked]:border-brand has-[:checked]:bg-purple-50 transition-colors"><input type="radio" name="delivery-type" value="delivery" class="hidden" checked onchange="toggleDeliveryFields()"><div class="text-center text-sm font-semibold"><i class="fas fa-motorcycle mr-1"></i> Entrega</div></label>
+                        <label class="flex-1 border rounded-lg p-3 cursor-pointer has-[:checked]:border-brand has-[:checked]:bg-purple-50 transition-colors"><input type="radio" name="delivery-type" value="pickup" class="hidden" onchange="toggleDeliveryFields()"><div class="text-center text-sm font-semibold"><i class="fas fa-store mr-1"></i> Retirar</div></label>
+                    </div>
+                    <div id="address-fields" class="space-y-3"><input type="text" id="input-bairro" placeholder="Bairro" class="w-full p-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-brand"><div class="flex gap-3"><input type="text" id="input-rua" placeholder="Rua" class="flex-2 w-full p-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-brand"><input type="text" id="input-num" placeholder="Nº" class="w-20 p-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-brand"></div></div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-3 text-sm">Pagamento</h3>
+                    <select id="payment-method" onchange="toggleChangeInput()" class="w-full p-3 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-brand"><option value="pix">PIX (Chave Celular)</option><option value="card">Cartão (Leva a maquininha)</option><option value="money">Dinheiro</option></select>
+                    <div id="change-container" class="hidden mt-3 bg-purple-50 p-3 rounded-lg border border-purple-100 animate-pulse"><label class="text-xs font-bold text-brand mb-1 block">Precisa de troco para quanto?</label><div class="flex items-center gap-2 bg-white border border-purple-200 rounded px-3 py-2"><span class="text-brand font-bold">R$</span><input type="number" id="input-change" placeholder="Ex: 50,00" class="w-full text-sm outline-none text-gray-700"></div></div>
+                </div>
+                <input type="text" id="input-name" placeholder="Seu Nome" class="w-full p-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-brand">
+            </div>
+            <div class="p-5 bg-white border-t"><div class="flex justify-between items-end mb-4"><span class="text-gray-500 text-sm">Total</span><span class="text-2xl font-bold text-brand" id="final-total">R$ 0,00</span></div><button onclick="finishOrder()" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-purple-800 active:scale-95 transition-transform"><span>Enviar Pedido</span><i class="fab fa-whatsapp text-lg"></i></button></div>
+        </div>
+    </div>
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-[70] text-sm font-medium opacity-0 translate-y-[-20px] pointer-events-none transition-all duration-300 flex items-center gap-2"><i class="fas fa-check-circle text-green-400"></i> <span id="toast-msg">Item adicionado!</span></div>
+
+    <script>
+        // --- DADOS ATUALIZADOS ---
+        const menuData = [
+            {
+                category: "Açaí no Copo",
+                icon: "<i class='fas fa-wine-glass'></i>",
+                items: [
+                    { id: 1, name: "Copo 300ml Tradicional", desc: "Açaí puro batido com guaraná. Perfeito para o lanche.", price: 12.00, img: "https://images.unsplash.com/photo-1590301157260-29240740b008?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" },
+                    { id: 2, name: "Copo 500ml Turbinado", desc: "O campeão! Escolha seus adicionais grátis no próximo passo.", price: 18.00, img: "https://images.unsplash.com/photo-1590301157260-29240740b008?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" },
+                    { id: 3, name: "Copo 700ml Gigante", desc: "Muita energia. Ideal para quem ama açaí de verdade.", price: 24.00, img: "https://images.unsplash.com/photo-1590301157260-29240740b008?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" }
+                ]
+            },
+            {
+                category: "Barcas Premium",
+                icon: "<i class='fas fa-ship'></i>",
+                items: [
+                    { id: 4, name: "Barca Pequena (500ml)", desc: "Açaí + 3 frutas + 3 acompanhamentos à sua escolha.", price: 25.00, img: "https://images.unsplash.com/photo-1618837332402-4c2813133857?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" },
+                    { id: 5, name: "Barca Família (1 Litro)", desc: "Para dividir! Açaí + frutas variadas + muito leite condensado.", price: 45.00, img: "https://images.unsplash.com/photo-1590301157890-4810ed352733?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" }
+                ]
+            }
+        ];
+
+        const toppingsData = [
+            { id: 101, name: "Leite Ninho", price: 3.00 },
+            { id: 102, name: "Granola Crocante", price: 2.00 },
+            { id: 103, name: "Paçoca", price: 2.00 },
+            { id: 104, name: "Leite Condensado", price: 2.50 },
+            { id: 105, name: "Morango Fresco", price: 4.00 },
+            { id: 106, name: "Banana em Rodelas", price: 2.00 },
+            { id: 107, name: "Kiwi", price: 3.50 }
+        ];
+
+        let cart = [];
+        let currentSelection = null;
+
+        document.addEventListener('DOMContentLoaded', () => { renderMenu(); renderCategories(); });
+
+        function renderCategories() {
+            const nav = document.getElementById('category-nav');
+            menuData.forEach((cat, index) => {
+                const activeClass = index === 0 ? 'text-brand border-b-2 border-brand font-bold' : 'text-gray-500 hover:text-gray-800';
+                nav.innerHTML += `<a href="#cat-${index}" class="whitespace-nowrap py-4 px-2 text-sm transition-colors ${activeClass}">${cat.icon} ${cat.category}</a>`;
+            });
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menu-container');
+            menuData.forEach((cat, index) => {
+                let itemsHtml = '';
+                cat.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="bg-white p-3 rounded-xl shadow-sm border border-purple-100 flex gap-4 transition-transform active:scale-[0.98]" onclick="openProductModal(${item.id})">
+                            <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-purple-100">
+                                <img src="${item.img}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex flex-col flex-1 justify-between">
+                                <div><h3 class="font-bold text-gray-800 text-sm line-clamp-1">${item.name}</h3><p class="text-xs text-gray-500 line-clamp-2 mt-1">${item.desc}</p></div>
+                                <div class="flex justify-between items-center mt-2"><span class="font-bold text-brand">R$ ${item.price.toFixed(2).replace('.', ',')}</span><button class="bg-purple-50 text-brand w-8 h-8 rounded-full flex items-center justify-center hover:bg-brand hover:text-white transition-colors shadow-sm"><i class="fas fa-plus text-xs"></i></button></div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML += `<div id="cat-${index}" class="scroll-mt-32"><h2 class="font-bold text-lg text-purple-900 mb-3 ml-1 flex items-center gap-2">${cat.category}</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4">${itemsHtml}</div></div>`;
+            });
+        }
+
+        function findItem(id) { for (let cat of menuData) for (let item of cat.items) if (item.id === id) return item; }
+
+        function openProductModal(id) {
+            currentSelection = findItem(id);
+            document.getElementById('modal-img').src = currentSelection.img;
+            document.getElementById('modal-title').innerText = currentSelection.name;
+            document.getElementById('modal-desc').innerText = currentSelection.desc;
+            document.getElementById('toppings-list').innerHTML = toppingsData.map(top => `
+                <label class="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer bg-white hover:border-purple-200 has-[:checked]:border-brand has-[:checked]:bg-purple-50 transition-all"><div class="flex items-center gap-3"><input type="checkbox" value="${top.id}" onchange="updateModalPrice()" class="w-5 h-5 accent-brand rounded"><span class="text-sm font-medium text-gray-700">${top.name}</span></div><span class="text-xs font-bold text-brand">+ R$ ${top.price.toFixed(2).replace('.', ',')}</span></label>
+            `).join('');
+            updateModalPrice();
+            document.getElementById('options-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOptionsModal() { document.getElementById('options-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+        
+        function updateModalPrice() {
+            let total = currentSelection.price;
+            document.querySelectorAll('#toppings-list input:checked').forEach(box => { const top = toppingsData.find(t => t.id == box.value); if(top) total += top.price; });
+            document.getElementById('modal-total-price').innerText = formatCurrency(total);
+        }
+
+        function confirmAddWithToppings() {
+            const myToppings = []; let toppingsTotal = 0;
+            document.querySelectorAll('#toppings-list input:checked').forEach(box => { const top = toppingsData.find(t => t.id == box.value); if(top) { myToppings.push(top); toppingsTotal += top.price; } });
+            cart.push({ uid: Date.now(), ...currentSelection, price: currentSelection.price + toppingsTotal, toppings: myToppings, qty: 1 });
+            closeOptionsModal(); updateCartUI(); showToast("Adicionado à sacola!");
+        }
+
+        function removeFromCart(uid) { const index = cart.findIndex(i => i.uid === uid); if (index > -1) cart.splice(index, 1); updateCartUI(); }
+
+        function updateCartUI() {
+            const totalQty = cart.length; const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
+            document.getElementById('cart-count').innerText = totalQty; document.getElementById('cart-total-float').innerText = formatCurrency(totalPrice); document.getElementById('final-total').innerText = formatCurrency(totalPrice);
+            const floatBtn = document.getElementById('cart-float-btn'); totalQty > 0 ? floatBtn.classList.remove('translate-y-32') : floatBtn.classList.add('translate-y-32');
+            const itemsContainer = document.getElementById('cart-items');
+            if (cart.length === 0) { itemsContainer.innerHTML = ''; document.getElementById('empty-cart-msg').classList.remove('hidden'); } else { document.getElementById('empty-cart-msg').classList.add('hidden'); itemsContainer.innerHTML = cart.map(item => `<div class="flex justify-between items-start py-3 border-b border-purple-50 last:border-0"><div class="flex-1"><div class="text-sm font-bold text-gray-800">${item.name}</div>${item.toppings.length ? `<div class="text-[10px] text-gray-500 mt-1 pl-2 border-l-2 border-purple-200">${item.toppings.map(t => `+ ${t.name}`).join('<br>')}</div>` : ''}<div class="text-xs text-brand font-bold mt-1">${formatCurrency(item.price)}</div></div><button onclick="removeFromCart(${item.uid})" class="text-gray-400 hover:text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></div>`).join(''); }
+        }
+
+        function toggleCart(show) { const modal = document.getElementById('cart-modal'); show ? modal.classList.remove('hidden') : modal.classList.add('hidden'); }
+        function toggleDeliveryFields() { const isDelivery = document.querySelector('input[name="delivery-type"]:checked').value === 'delivery'; const addressFields = document.getElementById('address-fields'); isDelivery ? addressFields.classList.remove('hidden') : addressFields.classList.add('hidden'); }
+        function toggleChangeInput() { const method = document.getElementById('payment-method').value; const container = document.getElementById('change-container'); method === 'money' ? container.classList.remove('hidden') : container.classList.add('hidden'); }
+        function showToast(msg) { const toast = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; toast.classList.remove('opacity-0', 'translate-y-[-20px]'); setTimeout(() => toast.classList.add('opacity-0', 'translate-y-[-20px]'), 2000); }
+        function formatCurrency(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+        function finishOrder() {
+            if (cart.length === 0) return showToast("Sacola vazia!");
+            const name = document.getElementById('input-name').value;
+            if (!name) return alert("Digite seu nome!");
+            let text = `🟣 *PEDIDO AÇAÍ SPACE*\n👤 Cliente: *${name}*\n\n`;
+            cart.forEach(item => { text += `▪ 1x ${item.name}\n`; if(item.toppings.length > 0) { item.toppings.forEach(t => text += `   _ + ${t.name}_\n`); } text += `   Valor: ${formatCurrency(item.price)}\n\n`; });
+            const deliveryType = document.querySelector('input[name="delivery-type"]:checked').value;
+            text += deliveryType === 'delivery' ? `📍 *Entrega:* ${document.getElementById('input-rua').value}, ${document.getElementById('input-num').value} - ${document.getElementById('input-bairro').value}\n` : `📍 *Retirada no Local*\n`;
+            const paymentSelect = document.getElementById('payment-method'); text += `💳 *Pagamento:* ${paymentSelect.options[paymentSelect.selectedIndex].text}\n`;
+            if (paymentSelect.value === 'money') { const change = document.getElementById('input-change').value; if (change) { text += `💵 *Troco para:* R$ ${change}\n`; } else { text += `💵 *Sem troco*\n`; } }
+            text += `\n💰 *TOTAL: ${document.getElementById('final-total').innerText}*`;
+            // window.open(`https://wa.me/55SEUNUMERO?text=${encodeURIComponent(text)}`);
+            alert("Simulação de Envio para WhatsApp:\n\n" + text);
+        }
+    </script>
+</body>
+</html>
